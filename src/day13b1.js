@@ -1,47 +1,47 @@
+import { create, all } from 'mathjs'
 import { data as data } from './day13.data'
 
-// const INCREMENT = 5926404n
-const INCREMENT = 19n
-// const LOWER_LIMIT = 0n
-const LOWER_LIMIT = (100000000000000n / INCREMENT) * INCREMENT
-const MAX_CYCLES = BigInt(100 * Number.MAX_SAFE_INTEGER)
-// const MAX_CYCLES = 10000000000n
+const math = create(all)
+const schedule = data.split('\n')[1].split(',')
 
-console.log(LOWER_LIMIT)
-
-const ticket = data.split('\n')
-const schedule = ticket[1].split(',')
-
-console.time('Run');
-
-// const calcLastRun = (period, timestamp) => Math.floor(timestamp / period) * period
-const calcNextRun = (period, timestamp) => {
-    const division = (timestamp / period)
-    const product = division * period
-    return product < timestamp ? product + period : product
-}
+console.time('Run')
 
 const pimpUpSchedule = (schedule) => schedule.reduce((acc, route, index) => {
     if (route === 'x') return acc
-    return acc.concat([[BigInt(parseInt(route, 10)), BigInt(index)]])
+    return acc.concat([[math.bignumber(parseInt(route, 10)), math.bignumber(index)]])
 }, [])
 
-const calcTimestamp = (schedule) => {
-    for (let tick = LOWER_LIMIT; tick <= MAX_CYCLES; tick += INCREMENT) {
-        const run = schedule.reduce((acc, route)  => {
-            return acc && (calcNextRun(route[0], tick) - route[1] === tick)
-        }, true)
-        if (run) return tick
-    }
-    return -1n
+const calcCongruence = (a1, n1, a2, n2) => {
+    const bezouts = math.xgcd(n1, n2)
+    return math.add(math.multiply(a1, bezouts._data[2], n2), math.multiply(a2, bezouts._data[1], n1))
 }
 
-// console.log(pimpUpSchedule(schedule))
+const calcTimestamp = (schedule) => {
+    let curr = schedule[0]
 
-const timestamp = calcTimestamp(pimpUpSchedule(schedule))
-console.log(timestamp)
+    // For more than two moduli, the method for two moduli allows the replacement of
+    // any two congruences by a single congruence modulo the product of the moduli.
+    // https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Using_the_existence_construction
+
+    for (let i = 1; i < schedule.length; i += 1) {
+        const congruence = calcCongruence(
+            curr[1], 
+            curr[0],
+            schedule[i][1],
+            schedule[i][0]
+        )
+        
+        const product = math.multiply(curr[0], schedule[i][0])
+        curr = [product, math.mod(congruence, product)]
+    }
+
+    return math.number(math.subtract(curr[0], curr[1]))
+}
+
+console.log(calcTimestamp(pimpUpSchedule(schedule)))
 console.timeEnd('Run')
 
-// answer > 100,000,000,000,000 (== 100 quadrillions)
-//        9,007,199,254,740,991 (max safe integer)
-//        >       1,202,161,486
+// = 1058443396696792
+
+// 100000000000000  expected min
+// 9007199254740991 Number.MAX_SAFE_INTEGER

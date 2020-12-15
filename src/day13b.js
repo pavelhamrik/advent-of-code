@@ -1,11 +1,13 @@
-import { test7 as data } from './day13.data'
+import { data as data } from './day13.data'
 
 // const INCREMENT = 5926404n
-const INCREMENT = 1n
-const LOWER_LIMIT = 0n
-// const LOWER_LIMIT = 100000000000000
-// const MAX_CYCLES = BigInt(10 * Number.MAX_SAFE_INTEGER)
-const MAX_CYCLES = 10000000000n
+const INCREMENT = 19n
+// const LOWER_LIMIT = 0n
+const LOWER_LIMIT = (100000000000000n / INCREMENT) * INCREMENT
+const MAX_CYCLES = BigInt(100 * Number.MAX_SAFE_INTEGER)
+// const MAX_CYCLES = 10000000000n
+
+console.log('LOWER_LIMIT', LOWER_LIMIT)
 
 const ticket = data.split('\n')
 const schedule = ticket[1].split(',')
