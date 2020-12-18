@@ -1,4 +1,4 @@
-import { data as data } from './day17.data'
+import { data } from './day17.data'
 
 const ACTIVE = '#'
 const INACTIVE = '.'
@@ -7,18 +7,20 @@ const seed = data.split('\n').map(row => row.split(''))
 
 const space = new Map()
 seed.forEach((y, yi) => y.forEach((x, xi) => {
-    if (x === ACTIVE) space.set(`${0},${yi},${xi}`, x)
+    if (x === ACTIVE) space.set(`${0},${0},${yi},${xi}`, x)
 }))
 
 const pushActiveToAdjacent = (key, metaSpace) => {
     const pivot = key.split(',').map(coord => parseInt(coord, 10))
-    for (let z = pivot[0] - 1; z <= pivot[0] + 1; z += 1) {
-        for (let y = pivot[1] - 1; y <= pivot[1] + 1; y += 1) {
-            for (let x = pivot[2] - 1; x <= pivot[2] + 1; x += 1) {
-                if (z === pivot[0] && y === pivot[1] && x === pivot[2]) continue
+    for (let w = pivot[0] - 1; w <= pivot[0] + 1; w += 1) {
+        for (let z = pivot[1] - 1; z <= pivot[1] + 1; z += 1) {
+            for (let y = pivot[2] - 1; y <= pivot[2] + 1; y += 1) {
+                for (let x = pivot[3] - 1; x <= pivot[3] + 1; x += 1) {
+                    if (w === pivot[0] && z === pivot[1] && y === pivot[2] && x === pivot[3]) continue
 
-                const current = metaSpace.get(`${z},${y},${x}`)
-                metaSpace.set(`${z},${y},${x}`, current ? [current[0], current[1] + 1] : [INACTIVE, 1])
+                    const current = metaSpace.get(`${w},${z},${y},${x}`)
+                    metaSpace.set(`${w},${z},${y},${x}`, current ? [current[0], current[1] + 1] : [INACTIVE, 1])
+                }
             }
         }
     }
@@ -59,4 +61,4 @@ const cycle = (space, count = 6) => {
 
 console.log(cycle(space).size)
 
-// = 336
+// = 2620
